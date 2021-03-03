@@ -22,21 +22,19 @@
         </div>
       </div>
     </div>
-    <div class="grid grid-cols-1 gap-5 mt-6 sm:grid-cols-1 lg:grid-cols-2">
-      <div
-        class="p-4 bg-white transition-shadow border rounded-lg shadow-sm hover:shadow-lg"
-      >
-        <div>
-          <div class="h-full">
-            <Map />
-          </div>
+    <div
+      class="p-4 my-6 bg-white transition-shadow border rounded-lg shadow-sm hover:shadow-lg"
+    >
+      <div>
+        <div class="h-full">
+          <Map />
         </div>
       </div>
-      <div
-        class="p-4 bg-white transition-shadow border rounded-lg shadow-sm hover:shadow-lg"
-      >
-        <ChartBar />
-      </div>
+    </div>
+    <div
+      class="p-4 bg-white transition-shadow border rounded-lg shadow-sm hover:shadow-lg"
+    >
+      <ChartBar />
     </div>
   </div>
 </template>

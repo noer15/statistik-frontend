@@ -1,24 +1,45 @@
 <template>
   <div>
     <div>
-      <span v-if="loading">Loading...</span>
-      <label for="checkbox">GeoJSON Visibility</label>
-      <input id="checkbox" v-model="show" type="checkbox" />
-      <label for="checkboxTooltip">Enable tooltip</label>
-      <input id="checkboxTooltip" v-model="enableTooltip" type="checkbox" />
-      <input v-model="fillColor" type="color" />
+      <div v-if="loading" class="bg-gray-400 p-2 w-full animate-pulse">
+        Loading...
+      </div>
+      <div v-else class="flex space-x-4">
+        <button
+          class="rounded-md bg-gray-700 cursor-pointer px-4 py-2 focus:outline-none text-white"
+        >
+          <label class="cursor-pointer" for="checkbox">GeoJSON</label>
+          <input
+            id="checkbox"
+            v-model="show"
+            type="checkbox"
+            class="hidden cursor-pointer"
+          />
+        </button>
+
+        <div>
+          <input v-model="fillColor" type="color" />
+        </div>
+      </div>
       <br />
     </div>
-    <l-map :zoom="zoom" :center="center" style="height: 500px; width: 100%">
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-geo-json
-        v-if="show"
-        :geojson="geojson"
-        :options="options"
-        :options-style="styleFunction"
-      />
-      <l-marker :lat-lng="marker" />
-    </l-map>
+    <div
+      v-if="geojson == null"
+      class="bg-gray-400 p-2 w-full animate-pulse"
+      style="height: 550px"
+    ></div>
+    <div v-else>
+      <l-map :zoom="zoom" :center="center" style="height: 550px; width: 100%">
+        <l-tile-layer :url="url" :attribution="attribution" />
+        <l-geo-json
+          v-if="show"
+          :geojson="geojson"
+          :options="options"
+          :options-style="styleFunction"
+        />
+        <l-marker :lat-lng="marker" />
+      </l-map>
+    </div>
   </div>
 </template>
 <script>
@@ -98,3 +119,21 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+input[type='color'] {
+  -webkit-appearance: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  left: 60px;
+  position: absolute;
+  margin-top: 140px;
+  z-index: 99999;
+}
+@media only screen and (max-width: 760px) {
+  input[type='color'] {
+    left: 37px;
+  }
+}
+</style>
