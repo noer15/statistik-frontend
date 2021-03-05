@@ -1,24 +1,85 @@
 <template>
   <div>
-    <div>
-      <span v-if="loading">Loading...</span>
-      <label for="checkbox">GeoJSON Visibility</label>
-      <input id="checkbox" v-model="show" type="checkbox" />
-      <label for="checkboxTooltip">Enable tooltip</label>
-      <input id="checkboxTooltip" v-model="enableTooltip" type="checkbox" />
-      <input v-model="fillColor" type="color" />
-      <br />
+    <!-- contoh -->
+    <div
+      v-if="loading"
+      class="animate-pulse bg-gray-400 rounded-md h-10 w-full"
+    ></div>
+    <div v-else class="flex justify-between">
+      <div class="bg-green-600 rounded-md px-6 py-3 text-white">
+        <label for="checkbox" class="cursor-pointer">GeoJSON</label>
+        <input id="checkbox" v-model="show" type="checkbox" class="hidden" />
+      </div>
+      <div class="flex">
+        <div class="relative mr-4">
+          <select
+            v-model="viewKecamatan"
+            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            @change="selectKecamatan()"
+          >
+            <option value="all">Jawa Barat</option>
+            <option v-for="kab in kabupaten.data" :key="kab.id" :value="kab.id">
+              {{ kab.nama }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+          >
+            <svg
+              class="fill-current h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="relative">
+          <select
+            v-model="viewDesa"
+            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            @change="selectDesa()"
+          >
+            <option value="all">Kecamatan</option>
+            <option v-for="kec in kecamatan.data" :key="kec.id" :value="kec.id">
+              {{ kec.nama }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+          >
+            <svg
+              class="fill-current h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
-    <l-map :zoom="zoom" :center="center" style="height: 500px; width: 100%">
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-geo-json
-        v-if="show"
-        :geojson="geojson"
-        :options="options"
-        :options-style="styleFunction"
-      />
-      <l-marker :lat-lng="marker" />
-    </l-map>
+    <br />
+    <div
+      v-if="loading"
+      class="animate-pulse bg-gray-400 rounded-md h-screen z-20 w-full"
+    ></div>
+    <div v-else>
+      <LMap :zoom="zoom" :center="center" style="height: 500px; width: 100%">
+        <LTileLayer :url="url" :attribution="attribution" />
+        <LGeoJson
+          v-if="show"
+          :geojson="geojson"
+          :options="options"
+          :options-style="styleFunction"
+        />
+        <LMarker :lat-lng="marker" />
+      </LMap>
+    </div>
   </div>
 </template>
 <script>
@@ -33,15 +94,21 @@ export default {
     LGeoJson,
     LMarker,
   },
+
   data() {
     return {
+      viewKecamatan: null,
+      viewDesa: null,
       loading: false,
+      kabupaten: [],
+      kecamatan: [],
+      desa: [],
       show: true,
       enableTooltip: true,
       zoom: 8,
-      center: [48, -1.219482],
+      center: [-6.943097, 107.633545],
       geojson: null,
-      fillColor: '#e4ce7f',
+      fillColor: null,
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -54,15 +121,16 @@ export default {
         onEachFeature: this.onEachFeatureFunction,
       }
     },
+
     styleFunction() {
-      const fillColor = this.fillColor // important! need touch fillColor in computed for re-calculate when change fillColor
-      return () => {
+      // const fillColor  = this.fillColor // important! need touch fillColor in computed for re-calculate when change fillColor
+      return (feature) => {
         return {
           weight: 2,
-          color: '#ECEFF1',
+          color: '#4caf50',
           opacity: 1,
-          fillColor,
-          fillOpacity: 1,
+          fillColor: feature.style.fillColor,
+          fillOpacity: 0.85,
         }
       }
     },
@@ -72,29 +140,64 @@ export default {
       }
       return (feature, layer) => {
         layer.bindTooltip(
-          '<div>code:' +
-            feature.properties.code +
-            '</div><div>nom: ' +
-            feature.properties.nom +
+          '<div>Kelompok Tani:' +
+            feature.properties.nama +
+            '</div><div>Total: ' +
+            feature.properties.total +
             '</div>',
+
           { permanent: false, sticky: true }
         )
+        this.fillColor = feature.style.fillColor
       }
     },
   },
   mounted() {
-    this.created()
+    this.getPeta()
+    this.getKab()
+    this.selectKecamatan()
+    this.selectDesa()
   },
   methods: {
-    async created() {
+    async getPeta() {
       this.loading = true
       const response = await fetch(
-        'https://rawgit.com/gregoiredavid/france-geojson/master/regions/pays-de-la-loire/communes-pays-de-la-loire.geojson'
+        'https://f0a9e6c78074.ngrok.io/api/kelompoktani'
       )
       const data = await response.json()
       this.geojson = data
       this.loading = false
     },
+    async getKab() {
+      this.kabupaten = await fetch(
+        'https://f0a9e6c78074.ngrok.io/api/getkabupaten'
+      ).then((res) => res.json())
+    },
+    // api/getkecamatan/id_kabupaten
+    async selectKecamatan() {
+      const kecamatan = await this.$axios.$get(
+        '/api/kelompoktani?kab_id=' + this.viewKecamatan + '&kec_id=0'
+      )
+      const response = await this.$axios.$get(
+        '/api/getkecamatan/' + this.viewKecamatan
+      )
+      this.kecamatan = response
+      console.log(kecamatan)
+      this.geojson = kecamatan
+    },
+
+    async selectDesa() {
+      const desa = await this.$axios.$get(
+        '/api/kelompoktani?kab_id=' +
+          this.viewKecamatan +
+          '&kec_id=' +
+          +this.viewDesa
+      )
+      this.desa = desa
+      this.geojson = desa
+      console.log(desa)
+    },
   },
 }
 </script>
+<style scoped></style>
