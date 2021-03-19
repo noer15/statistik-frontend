@@ -1,7 +1,7 @@
 <template>
   <b-card title="Doughnut">
     <b-card img-bottom>
-      <ChartDoughnutBase :chart-data="chartData" />
+      <ChartDoughnutBase :chart-data="chartData" :height="300" />
     </b-card>
   </b-card>
 </template>

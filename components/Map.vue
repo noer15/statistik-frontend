@@ -1,11 +1,7 @@
 <template>
   <div>
     <!-- contoh -->
-    <div
-      v-if="loading"
-      class="animate-pulse bg-gray-400 rounded-md h-10 w-full"
-    ></div>
-    <div v-else class="flex justify-between">
+    <div class="flex justify-between">
       <div class="bg-green-600 rounded-md px-6 py-3 text-white">
         <label for="checkbox" class="cursor-pointer">GeoJSON</label>
         <input id="checkbox" v-model="show" type="checkbox" class="hidden" />
@@ -14,10 +10,10 @@
         <div class="relative mr-4">
           <select
             v-model="viewKecamatan"
-            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            class="block appearance-none w-full bg-white border border-gray-400 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
             @change="selectKecamatan()"
           >
-            <option value="all">Jawa Barat</option>
+            <option :value="null" selected>Jawa Barat</option>
             <option v-for="kab in kabupaten.data" :key="kab.id" :value="kab.id">
               {{ kab.nama }}
             </option>
@@ -39,10 +35,10 @@
         <div class="relative">
           <select
             v-model="viewDesa"
-            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            class="block appearance-none w-full bg-white border border-gray-400 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
             @change="selectDesa()"
           >
-            <option value="all">Kecamatan</option>
+            <option :value="null" selected>Pilih Kecamatan</option>
             <option v-for="kec in kecamatan.data" :key="kec.id" :value="kec.id">
               {{ kec.nama }}
             </option>
@@ -102,7 +98,6 @@ export default {
       loading: false,
       kabupaten: [],
       kecamatan: [],
-      desa: [],
       show: true,
       enableTooltip: true,
       zoom: 8,
@@ -127,7 +122,7 @@ export default {
       return (feature) => {
         return {
           weight: 2,
-          color: '#4caf50',
+          color: '#ffb01f',
           opacity: 1,
           fillColor: feature.style.fillColor,
           fillOpacity: 0.85,
@@ -162,7 +157,7 @@ export default {
     async getPeta() {
       this.loading = true
       const response = await fetch(
-        'https://f0a9e6c78074.ngrok.io/api/kelompoktani'
+        'https://f0a9e6c78074.ngrok.io/api/kelompoktani?kab_id=0&kec_id=0'
       )
       const data = await response.json()
       this.geojson = data
@@ -187,15 +182,14 @@ export default {
     },
 
     async selectDesa() {
-      const desa = await this.$axios.$get(
+      const response = await this.$axios.$get(
         '/api/kelompoktani?kab_id=' +
           this.viewKecamatan +
           '&kec_id=' +
           +this.viewDesa
       )
-      this.desa = desa
-      this.geojson = desa
-      console.log(desa)
+      this.geojson = response
+      console.log(response)
     },
   },
 }

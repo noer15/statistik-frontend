@@ -1,12 +1,12 @@
 <template>
   <div class="w-full bg-gray-100">
     <Navbar />
-    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 p-2">
+    <div style="visibility: hidden"></div>
+    <section class="m-4 mb-8 md:m-8">
       <Nuxt />
-    </div>
+    </section>
   </div>
 </template>
-
 <script>
 import Navbar from '~/components/Navbar'
 export default {
@@ -16,8 +16,8 @@ export default {
 }
 </script>
 <style scoped>
-* {
-  font-family: 'Poppins', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+body {
+  margin: 0;
+  background: #f7fafc !important;
 }
 </style>

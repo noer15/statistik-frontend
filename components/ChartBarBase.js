@@ -1,27 +1,47 @@
-import { Bar, mixins } from 'vue-chartjs'
-const { reactiveProp } = mixins
+import { Bar } from 'vue-chartjs'
 
 export default {
   extends: Bar,
-  mixins: [reactiveProp],
-  props: ['chartData'],
+  props: ['data', 'options'],
   data() {
     return {
-      options: {
+      barChartOptions: {
+        responsive: true,
+        legend: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: 'Data Chart',
+          fontSize: 24,
+          fontColor: '#6b7280',
+        },
+        tooltips: {
+          backgroundColor: '#17BF62',
+        },
         scales: {
+          xAxes: [
+            {
+              gridLines: {
+                display: false,
+              },
+            },
+          ],
           yAxes: [
             {
               ticks: {
                 beginAtZero: true,
               },
+              gridLines: {
+                display: false,
+              },
             },
           ],
         },
-        responsive: true,
       },
     }
   },
   mounted() {
-    this.renderChart(this.chartData, this.options)
+    this.renderChart(this.data, this.options)
   },
 }
